@@ -1,12 +1,20 @@
 .container {
-    background-color: gray;
+    user-select: none;
+    color: dimgray;
     border-radius: 10px;
-    padding: 10px;
     font-size: 20px;
     display: flex;
-    /*auto grow to fit available space*/
-    flex-grow: 0;
-    margin: 5px;
-    /*enable line break*/
+    justify-self: stretch;
+    align-self: stretch;
     white-space: pre-line;
+    align-items: center;
+    justify-content: center;
+    margin: 2px;
+    transition: transform 0.2s linear;
+    cursor: pointer;
 }
+
+.container:hover {
+    transform: scale(1.1);
+}
+

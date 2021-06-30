@@ -1,0 +1,7 @@
+.container {
+    overflow: hidden;
+}
+
+.panSection {
+    transition: transform 50ms linear;
+}

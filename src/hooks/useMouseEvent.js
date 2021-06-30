@@ -1,3 +1,4 @@
+
 import {useState, useLayoutEffect, useRef, useCallback} from 'react';
 
 function getOffset(startP, endP) {
@@ -16,34 +17,22 @@ function getPoint(e) {
   };
 }
 
-export function useMouseDrag(ref, {onDrag, onDrop}) {
+export function useMouseEvent(ref, {onDrag, onDrop}) {
   const global = useRef({}).current;
   useLayoutEffect(() => {
     const element = ref?.current;
     console.log('Set up mouse drag', element);
     if (element) {
       function handleMouseDown(e) {
-        global.startP = getPoint(e);
-        global.dragging = true;
-        global.currentP = getPoint(e);
+
       }
 
       function handleMouseUp(e) {
-        if (global.dragging) {
-          onDrop?.(getOffset(global.startP, getPoint(e)));
-        }
-        global.dragging = false;
+
       }
 
       function handleMouseMove(e) {
-        if (global.dragging) {
-          onDrag(
-            getOffset(global.currentP, getPoint(e)),
-            getOffset(global.startP, getPoint(e)),
-          );
-          global.currentP = getPoint(e);
-        }
-        e.preventDefault();
+
       }
 
       element.addEventListener('mousedown', handleMouseDown);

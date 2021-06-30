@@ -1,26 +1,24 @@
 import {useCallback, useEffect, useRef} from "react";
-import {bufferTime, filter} from "rxjs/operators";
 import {Observable} from "rxjs";
 
-function useObservable(callback) {
-  const memoCallback = useCallback(callback, []);
-  const subscriberRef = useRef(null);
+export function usePipeCallback(output, deps = [], pipes) {
+  const memoOutput = useCallback(output, deps);
+  const subsRef = useRef(null);
+  const memoInput = useCallback((...args) => {
+    subsRef.current?.next?.(...args);
+  }, []);
   useEffect(() => {
     const observable = new Observable(subscriber => {
-      console.log('observable created', subscriber)
-      subscriberRef.current = subscriber;
+      subsRef.current = subscriber;
     });
     const observation = observable
-      .pipe(bufferTime(100), filter(noEmptyArray))
-      .subscribe((e) => {
-        console.log('observe', e);
-        memoCallback(e);
-      });
+      .pipe(...pipes)
+      .subscribe(memoOutput);
 
     return () => {
       observation.unsubscribe();
     };
   }, []);
 
-  return subscriberRef;
+  return memoInput;
 }

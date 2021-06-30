@@ -1,26 +1,18 @@
 import {usePipe, usePipeCallback} from "./usePipe";
-import {bufferTime, filter, throttleTime, map, pluck, reduce} from "rxjs/operators";
-import {useMouseScroll} from "./useMouseScroll";
+import {useMouseZoom} from "./useMouseZoom";
 import {useRef} from "react";
 import {useThrottle} from "./useThrottle";
 import {useMouseDrag} from "./useMouseDrag";
 
-function noEmptyArray(items) {
-  return !!items.length;
-}
-
-function sum(total, item) {
-  return total + item;
-}
-
 // track event from track node and apply to target node
-export function useAutoZoomPan(trackRef, targetRef) {
+export function useAutoZoomPan(trackRef, targetRef, {zoom = true, pan = true, throttle = 30} = {}) {
   const global = useRef({
     translateX: 0,
     translateY: 0,
     scale: 1,
     adjustMultiply: 1,
     adjustAdd: 0,
+    zooming: false,
   }).current;
 
   const updateThrottled = useThrottle(
@@ -29,37 +21,66 @@ export function useAutoZoomPan(trackRef, targetRef) {
         + `translateX(${global.translateX}px)`
         + `translateY(${global.translateY}px)`;
     },
-    30,
-    [targetRef],
+    throttle,
+    [],
   );
 
-  useMouseScroll(
-    trackRef,
-    ({deltaY}) => {
+  function translateTowardZoomPoint({offsetX, offsetY}, scaleAdjust) {
+    // translate toward zoom point
+    // zoom point offset to center after scale
+    const offsetAfterScale = {
+      x: offsetX * scaleAdjust,
+      y: offsetY * scaleAdjust
+    };
+    // translate back to maintain zoom point
+    const adjustX = offsetX - offsetAfterScale.x;
+    const adjustY = offsetY - offsetAfterScale.y;
+
+    const currentScaleLevel = (global.scale * global.adjustMultiply);
+    global.translateX += adjustX / currentScaleLevel;
+    global.translateY += adjustY / currentScaleLevel;
+  }
+
+  useMouseZoom(
+    zoom ? trackRef : null,
+    ({deltaY}, zoomPointOffset) => {
       if (deltaY === 0) return;
-      global.scale += deltaY * -0.001;
-      global.scale = Math.max(global.scale, 0.2);
-      global.scale = Math.min(global.scale, 3);
+
+      let newScale = global.scale + deltaY * -0.001;
+      newScale = Math.max(newScale, 0.2);
+      newScale = Math.min(newScale, 3);
+
+      const scaleAdjust = newScale / global.scale;
+      translateTowardZoomPoint(zoomPointOffset, scaleAdjust)
+      global.scale = newScale;
       updateThrottled();
     },
-    (scale) => {
+    (e) => {
+      global.zooming = true;
+    },
+    (scale, zoomPointOffset) => {
+      const scaleAdjust = scale / global.adjustMultiply;
+      translateTowardZoomPoint(zoomPointOffset, scaleAdjust);
       global.adjustMultiply = scale;
-      targetRef.current.style.transform = `scale(${global.scale * global.adjustMultiply})`;
       updateThrottled();
     },
     (scale) => {
       global.scale = global.scale * global.adjustMultiply;
       global.adjustMultiply = 1;
+      global.zooming = false;
     });
 
   useMouseDrag(
-    trackRef,
+    pan ? trackRef : null,
     {
       onDrag: ({offsetX, offsetY}) => {
-        console.log('drag');
-        global.translateX -= offsetX;
-        global.translateY -= offsetY;
-        updateThrottled();
+        if (!global.zooming) {
+          // zoom and pan effect apply on same element -> need to scale pan offset base current zoom level
+          const currentScaleLevel = (global.scale * global.adjustMultiply);
+          global.translateX -= offsetX / currentScaleLevel;
+          global.translateY -= offsetY / currentScaleLevel;
+          updateThrottled();
+        }
       }
     });
 }
