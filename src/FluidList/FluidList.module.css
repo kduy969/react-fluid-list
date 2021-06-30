@@ -1,0 +1,9 @@
+.list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    background-color: burlywood;
+    border-radius: 20px;
+    align-items: stretch;
+
+}
