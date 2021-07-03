@@ -21,7 +21,6 @@ export const useThrottle = (fnToThrottle, durationInMs = 200, deps = []) => {
 
 
   const throttleMemo = useMemo(() => {
-    console.log('Create throttle');
     return throttle(callback, durationInMs);
   }, [callback, durationInMs]);
 

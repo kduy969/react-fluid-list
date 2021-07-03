@@ -56,55 +56,69 @@ function getOffset(startP, endP) {
   }
 }
 
-export const useMouseZoom = (ref, onScroll, onZoomStart, onZoom, onZoomEnd) => {
+export const useMouseZoom = (onScroll, onZoomStart, onZoom, onZoomEnd) => {
   const global = useRef({}).current;
-  useEffect(() => {
-    const node = ref && ref.current;
-    if (node) {
-      function handleMouseDown(e) {
-        if (isZoomGesture(e)) {
-          global.zooming = true;
-          global.startD = getGestureDist(e);
-          onZoomStart(e);
-          e.preventDefault();
-        } else {
-          global.zooming = false;
-        }
-      }
 
-      function handleMouseUp(e) {
-        if (global.zooming) {
-          onZoomEnd();
-        }
-        global.zooming = false;
-      }
-
-      function handleMouseMove(e) {
-        if (global.zooming && isZoomGesture(e)) {
-          const scale = getGestureDist(e) / global.startD;
-          onZoom(scale, getOffsetToCenter(getGestureCenter(e), node));
-          e.preventDefault();
-        }
-      }
-
-      function handleMouseScroll(e) {
-        //coordinate in node
-        onScroll({
-          deltaX: e.deltaX,
-          deltaY: e.deltaY,
-        }, getOffsetToCenter(getPoint(e), node))
-      }
-
-      node.addEventListener('mousewheel', handleMouseScroll);
-      node.addEventListener('touchstart', handleMouseDown);
-      node.addEventListener('touchend', handleMouseUp);
-      node.addEventListener('touchmove', handleMouseMove);
-      return () => {
-        node.removeEventListener('mousewheel', handleMouseScroll);
-        node.removeEventListener('touchstart', handleMouseDown);
-        node.removeEventListener('touchend', handleMouseUp);
-        node.removeEventListener('touchmove', handleMouseMove);
-      };
+  function handleMouseDown(e) {
+    if (isZoomGesture(e)) {
+      global.zooming = true;
+      global.startD = getGestureDist(e);
+      onZoomStart(e);
+      e.preventDefault();
+    } else {
+      global.zooming = false;
     }
-  }, [ref?.current]);
+  }
+
+  function handleMouseUp(e) {
+    if (global.zooming) {
+      onZoomEnd();
+    }
+    global.zooming = false;
+  }
+
+  function handleMouseMove(e) {
+    if (global.zooming && isZoomGesture(e)) {
+      const scale = getGestureDist(e) / global.startD;
+      onZoom(scale, getOffsetToCenter(getGestureCenter(e), global.node));
+      e.preventDefault();
+    }
+  }
+
+  function handleMouseScroll(e) {
+    //coordinate in node
+    onScroll({
+      deltaX: e.deltaX,
+      deltaY: e.deltaY,
+    }, getOffsetToCenter(getPoint(e), global.node))
+  }
+
+  function setUp(node) {
+    global.node = node;
+    if (!global.node) return;
+    node.addEventListener('mousewheel', handleMouseScroll);
+    node.addEventListener('touchstart', handleMouseDown);
+    node.addEventListener('touchend', handleMouseUp);
+    node.addEventListener('touchmove', handleMouseMove);
+  }
+
+  function cleanUp() {
+    if (!global.node) return;
+    global.node.removeEventListener('mousewheel', handleMouseScroll);
+    global.node.removeEventListener('touchstart', handleMouseDown);
+    global.node.removeEventListener('touchend', handleMouseUp);
+    global.node.removeEventListener('touchmove', handleMouseMove);
+    global.node = null;
+    global.zooming = false;
+  }
+
+  function onNodeChange(newNode) {
+    if (newNode !== global.node) {
+      cleanUp();
+      setUp(newNode);
+    }
+  };
+
+  // return onRefChange callback, user component must call it when element ref change.
+  return onNodeChange;
 };

@@ -4,7 +4,8 @@ import {COLORS} from "../constants";
 import {calcFont} from "../helper";
 
 // var renderTime = 0;
-export const Node = React.memo(function ({node, multiply, baseFontSize, unitSize}) {
+export const Node = React.memo(function ({node, config}) {
+  const {multiply, baseFontSize, unitSize, borderRadius} = config;
   const {title, w = 1, h = 1} = node;
   // renderTime++;
   // console.log('Render time', renderTime, title);
@@ -12,12 +13,13 @@ export const Node = React.memo(function ({node, multiply, baseFontSize, unitSize
     style={{
       fontSize: calcFont({
         text: title,
-        containerWidth: w * unitSize,
         baseFontSize,
+        containerWidth: w * unitSize,
       }),
+      borderRadius: borderRadius * unitSize,
       gridColumn: `span ${w * multiply}`,
       gridRow: `span ${h * multiply}`,
-      backgroundColor: COLORS[Math.floor(Math.random() * 10) % COLORS.length] + 'CC',
+      backgroundColor: node.color || COLORS[Math.floor(Math.random() * 10) % COLORS.length] + 'CC',
     }}
     className={css.container}>
     {title}

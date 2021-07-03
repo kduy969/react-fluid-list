@@ -1,14 +1,19 @@
 import React, {useRef, useEffect, useCallback} from "react";
 import css from './PanView.module.css';
 import {useAutoZoomPan} from "../hooks/useAutoZoomPan";
+import {useCallbackRef} from "use-callback-ref";
 
 
-export default React.memo(({children, className}) => {
-  const ref = useRef(null);
+export default ({children, className}) => {
   const panRef = useRef(null);
-  useAutoZoomPan(ref, panRef, {throttle: 30});
+  const {setUpMouseZoom, setUpMouseDrag} = useAutoZoomPan(panRef, {throttle: 30});
+  const trackRef = useCallbackRef(null, function (ref) {
+    setUpMouseDrag(ref);
+    setUpMouseZoom(ref);
+  });
+
   return <div
-    ref={ref}
+    ref={trackRef}
     className={css.container + ' ' + className || ''}
   >
     <div
@@ -17,5 +22,5 @@ export default React.memo(({children, className}) => {
       {children}
     </div>
   </div>
-});
+};
 

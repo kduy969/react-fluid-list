@@ -4,4 +4,5 @@
 
 .panSection {
     transition: transform 50ms linear;
+    will-change: transform;
 }

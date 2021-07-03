@@ -1,10 +1,11 @@
 import React from "react";
 import css from "./FolderNode.module.css";
 
-export function Title(props) {
+export function Title({title, config}) {
+  const {titleH, unitSize, baseFontSize} = config;
   return <div style={{
-    height: props.titleH * props.unitSize,
-    fontSize: props.fontSize,
-  }} className={css.title}>{props.title}
+    height: titleH * unitSize,
+    fontSize: baseFontSize,
+  }} className={css.title}>{title}
   </div>;
 }
