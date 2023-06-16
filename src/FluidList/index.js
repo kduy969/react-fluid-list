@@ -1,7 +1,7 @@
 import {Node} from "./Node";
 import css from './FluidList.module.css';
 import React from "react";
-import {useEffect, useState, useMemo} from "react";
+import {useRef, useState, useMemo} from "react";
 import {FolderNode} from "./FolderNode";
 import {useSize} from "../hooks/useSize";
 
@@ -25,12 +25,15 @@ export default React.memo(
     const {baseFontSize, unitSize, multiply} = memoConfig;
 
     const [colCount, setColCount] = useState(null);
+    const colRef = useRef(null);
     const containerRef = React.useRef(null);
     useSize(containerRef, (containerSize) => {
       if (onResize) onResize(containerSize);
-      const newColCount = Math.trunc(containerSize.width / (unitSize / multiply));
+      const newColCount = Math.trunc((containerSize.width / unitSize) * multiply);
 
-      if (colCount !== newColCount) {
+      if (colRef.current !== newColCount) {
+        console.log('Set col');
+        colRef.current = newColCount;
         setColCount(newColCount);
       }
 

@@ -14,6 +14,26 @@ function getSize(item) {
     return (item.w || 1) * (item.h || 1);
 }
 
+function refineFolderWidth(width, items) {
+  let result = 0;
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (!item.items) {
+      if (result + item.w > width) {
+        break;
+      } else {
+        console.log('add', result, item.w);
+        result += item.w;
+      }
+    }
+  }
+  console.log('result', result);
+  if (result === 0 || ((result / width) < 0.8)) {
+    return width;
+  }
+  return result;
+}
+
 export function CFolderNode({folder, config}) {
   const ref = useRef(null);
   const {unitSize, multiply, titleH, padding, margin, borderRadius} = config;
@@ -24,7 +44,7 @@ export function CFolderNode({folder, config}) {
 
   // fixed col, row flexible
   const colCount = useMemo(() => {
-    // on mount -> calculate column span to ensure folder have good shape
+    // on mount -> calculate column span to ensure folder have a good shape
     // base on R
     const S = items.reduce((total = 0, item) => {
       return total + getSize(item);
@@ -32,14 +52,18 @@ export function CFolderNode({folder, config}) {
     const R = 4 / 2;
     const targetWidth = Math.ceil(Math.sqrt(R * S));
     return targetWidth;
+    return refineFolderWidth(targetWidth, items);
   }, [items]);
+  const gridColumn = Math.ceil((colCount + (padding + margin) * 2) * multiply);
 
   const onChildListResize = useCallback((size) => {
     // when container finish rendered -> calculate row span base on new height
     if (!size?.height)
       return;
-    const row = Math.round((size.height / unitSize) * multiply) / multiply;
-    ref.current.style.gridRow = `span ${((row || 1) + titleH + (padding) * 2) * multiply}`;
+    const row = size.height / unitSize;
+    let gridRow = ((row || 1) + titleH + (padding) * 2) * multiply;
+    gridRow = Math.ceil(gridRow);
+    ref.current.style.gridRow = `span ${gridRow}`;
   }, [unitSize, multiply, titleH, padding]);
 
   const hideCover = useCallback(() => {
@@ -51,7 +75,7 @@ export function CFolderNode({folder, config}) {
     ref={ref}
     className={css.container}
     style={{
-      gridColumn: `span ${(colCount + (padding + margin) * 2) * multiply}`,
+      gridColumn: `span ${gridColumn}`,
       // gridRow: `span ${((row || 1) + titleH + (padding) * 2) * multiply}`,
       overflow: 'visible',
       position: 'relative',

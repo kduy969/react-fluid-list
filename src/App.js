@@ -1,13 +1,15 @@
 import './App.css';
 import FluidList from "./FluidList";
 import PanView from './PanView';
-import React from "react";
+import React, {useState} from "react";
 
 const CONFIG = {
   autoScaleFont: true,
-  multiply: 10,
+  multiply: 2,
   unitSize: 20,
-  baseFontSize: 7
+  baseFontSize: 7,
+  padding: 0.05,
+  margin: 0.05,
 }
 
 const ITEMS = [
@@ -22,9 +24,10 @@ const ITEMS = [
   {
     title: 'Sport',
     items: [
-      {title: 'Tennis', h: 2.4, w: 3},
+      {title: 'Tennis', h: 2, w: 3},
       {title: 'Soccer', w: 2},
       {title: 'Basketball', w: 2, h: 1},
+
     ]
   },
   {
@@ -37,7 +40,7 @@ const ITEMS = [
       {
         title: 'Sport',
         items: [
-          {title: 'Tennis', h: 2.4, w: 3},
+          {title: 'Tennis', h: 2, w: 3},
           {title: 'Soccer', w: 2},
           {title: 'Basketball', w: 2, h: 1},
         ]
@@ -47,7 +50,7 @@ const ITEMS = [
   {
     title: 'Sport',
     items: [
-      {title: 'Tennis', h: 2.4, w: 3},
+      {title: 'Tennis', h: 2, w: 3},
       {title: 'Soccer', w: 2},
       {title: 'Basketball', w: 2, h: 1},
     ]
@@ -62,7 +65,7 @@ const ITEMS = [
       {
         title: 'Sport',
         items: [
-          {title: 'Tennis', h: 2.4, w: 3},
+          {title: 'Tennis', h: 2, w: 3},
           {title: 'Soccer', w: 2},
           {title: 'Basketball', w: 2, h: 1},
         ]
@@ -89,7 +92,7 @@ const ITEMS = [
   {
     title: 'Sport',
     items: [
-      {title: 'Tennis', h: 2.4, w: 3},
+      {title: 'Tennis', h: 2, w: 3},
       {title: 'Soccer', w: 2},
       {title: 'Basketball', w: 2, h: 1},
     ]
@@ -104,7 +107,7 @@ const ITEMS = [
       {
         title: 'Sport',
         items: [
-          {title: 'Tennis', h: 2.4, w: 3},
+          {title: 'Tennis', h: 2, w: 3},
           {title: 'Soccer', w: 2},
           {title: 'Basketball', w: 2, h: 1},
         ]
@@ -114,7 +117,7 @@ const ITEMS = [
   {
     title: 'Sport',
     items: [
-      {title: 'Tennis', h: 2.4, w: 3},
+      {title: 'Tennis', h: 2, w: 3},
       {title: 'Soccer', w: 2},
       {title: 'Basketball', w: 2, h: 1},
     ]
@@ -129,25 +132,17 @@ const ITEMS = [
       {
         title: 'Sport',
         items: [
-          {title: 'Tennis', h: 2.4, w: 3},
+          {title: 'Tennis', h: 2, w: 3},
           {title: 'Soccer', w: 2},
           {title: 'Basketball', w: 2, h: 1},
         ]
       },
     ]
   },
-  {title: 'Computer', w: 2, h: 2},
-  {title: 'Book', w: 3},
-  {title: 'Mobile', w: 2},
-  {title: 'Computer', w: 2, h: 2},
-  {title: 'Vaccine', w: 3},
-  {title: 'Headphone', w: 2},
-  {title: 'Electronic', w: 2, h: 2},
-  {title: 'Book', w: 3},
-  {title: 'Mobile', w: 2},
 ];
 
 function App() {
+
   return (
     <div className="App">
       <PanView className={'PanView'}>

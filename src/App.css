@@ -22,12 +22,14 @@
 
 .PanView {
     width: 95%;
+    max-height: 95%;
+    overflow: hidden;
     background: whitesmoke;
 }
 
 .List {
-    width: calc(100% - 40px);
-    padding: 20px;
+    width: calc(200% - 0px);
+    padding: 0px;
 
 }
 
